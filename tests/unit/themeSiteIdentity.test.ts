@@ -31,7 +31,7 @@ describe('theme site identity helpers', () => {
   it('validates required name and description fields', () => {
     expect(validateThemeSiteName('', 'Site name').error).toContain('required')
     expect(validateThemeSiteDescription('', 'Site description').error).toContain('required')
-    expect(validateThemeSiteName('Kuest', 'Site name')).toEqual({ value: 'Kuest', error: null })
+    expect(validateThemeSiteName('Cultural Exchange', 'Site name')).toEqual({ value: 'Cultural Exchange', error: null })
   })
 
   it('validates logo mode', () => {

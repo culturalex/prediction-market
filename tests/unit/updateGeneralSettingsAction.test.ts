@@ -58,7 +58,7 @@ describe('updateGeneralSettingsAction', () => {
 
     const { updateGeneralSettingsAction } = await import('@/app/[locale]/admin/(general)/_actions/update-general-settings')
     const formData = new FormData()
-    formData.set('site_name', 'Kuest')
+    formData.set('site_name', 'Cultural Exchange')
     formData.set('site_description', 'Prediction market')
     formData.set('logo_mode', 'svg')
     formData.set('logo_svg', '<svg xmlns="http://www.w3.org/2000/svg"></svg>')
@@ -90,7 +90,7 @@ describe('updateGeneralSettingsAction', () => {
 
     const { updateGeneralSettingsAction } = await import('@/app/[locale]/admin/(general)/_actions/update-general-settings')
     const formData = new FormData()
-    formData.set('site_name', 'Kuest')
+    formData.set('site_name', 'Cultural Exchange')
     formData.set('site_description', 'Prediction market')
     formData.set('logo_mode', 'svg')
     formData.set('logo_svg', '<svg xmlns="http://www.w3.org/2000/svg"></svg>')
@@ -121,7 +121,7 @@ describe('updateGeneralSettingsAction', () => {
 
     const { updateGeneralSettingsAction } = await import('@/app/[locale]/admin/(general)/_actions/update-general-settings')
     const formData = new FormData()
-    formData.set('site_name', 'Kuest')
+    formData.set('site_name', 'Cultural Exchange')
     formData.set('site_description', 'Prediction market')
     formData.set('logo_mode', 'svg')
     formData.set('logo_svg', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"/></svg>')
@@ -143,7 +143,7 @@ describe('updateGeneralSettingsAction', () => {
 
     const savedPayload = mocks.updateSettings.mock.calls[0][0] as Array<{ group: string, key: string, value: string }>
     expect(savedPayload).toHaveLength(26)
-    expect(savedPayload.find(entry => entry.key === 'site_name')?.value).toBe('Kuest')
+    expect(savedPayload.find(entry => entry.key === 'site_name')?.value).toBe('Cultural Exchange')
     expect(savedPayload.find(entry => entry.key === 'site_description')?.value).toBe('Prediction market')
     expect(savedPayload.find(entry => entry.key === 'site_logo_mode')?.value).toBe('svg')
     expect(savedPayload.find(entry => entry.key === 'site_logo_image_path')?.value).toBe('')
@@ -183,7 +183,7 @@ describe('updateGeneralSettingsAction', () => {
 
     const { updateGeneralSettingsAction } = await import('@/app/[locale]/admin/(general)/_actions/update-general-settings')
     const formData = new FormData()
-    formData.set('site_name', 'Kuest')
+    formData.set('site_name', 'Cultural Exchange')
     formData.set('site_description', 'Prediction market')
     formData.set('logo_mode', 'image')
     formData.set('logo_svg', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"/></svg>')
@@ -215,7 +215,7 @@ describe('updateGeneralSettingsAction', () => {
 
     const { updateGeneralSettingsAction } = await import('@/app/[locale]/admin/(general)/_actions/update-general-settings')
     const formData = new FormData()
-    formData.set('site_name', 'Kuest')
+    formData.set('site_name', 'Cultural Exchange')
     formData.set('site_description', 'Prediction market')
     formData.set('logo_mode', 'svg')
     formData.set('logo_svg', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"/></svg>')
@@ -241,7 +241,7 @@ describe('updateGeneralSettingsAction', () => {
 
     const { updateGeneralSettingsAction } = await import('@/app/[locale]/admin/(general)/_actions/update-general-settings')
     const formData = new FormData()
-    formData.set('site_name', 'Kuest')
+    formData.set('site_name', 'Cultural Exchange')
     formData.set('site_description', 'Prediction market')
     formData.set('logo_mode', 'svg')
     formData.set('logo_svg', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"/></svg>')
@@ -261,7 +261,7 @@ describe('updateGeneralSettingsAction', () => {
 
     const { updateGeneralSettingsAction } = await import('@/app/[locale]/admin/(general)/_actions/update-general-settings')
     const formData = new FormData()
-    formData.set('site_name', 'Kuest')
+    formData.set('site_name', 'Cultural Exchange')
     formData.set('site_description', 'Prediction market')
     formData.set('logo_mode', 'image')
     formData.set('logo_svg', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"/></svg>')
@@ -279,7 +279,7 @@ describe('updateGeneralSettingsAction', () => {
 
     const { updateGeneralSettingsAction } = await import('@/app/[locale]/admin/(general)/_actions/update-general-settings')
     const formData = new FormData()
-    formData.set('site_name', 'Kuest')
+    formData.set('site_name', 'Cultural Exchange')
     formData.set('site_description', 'Prediction market')
     formData.set('logo_mode', 'svg')
     formData.set('logo_svg', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"/></svg>')
@@ -316,7 +316,7 @@ describe('updateGeneralSettingsAction', () => {
 
     const { updateGeneralSettingsAction } = await import('@/app/[locale]/admin/(general)/_actions/update-general-settings')
     const formData = new FormData()
-    formData.set('site_name', 'Kuest')
+    formData.set('site_name', 'Cultural Exchange')
     formData.set('site_description', 'Prediction market')
     formData.set('logo_mode', 'svg')
     formData.set('logo_svg', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"/></svg>')

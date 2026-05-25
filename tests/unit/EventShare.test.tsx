@@ -158,7 +158,7 @@ describe('eventShare', () => {
       },
     })
 
-    mocks.useSiteIdentity.mockReturnValue({ name: 'Kuest' })
+    mocks.useSiteIdentity.mockReturnValue({ name: 'Cultural Exchange' })
     mocks.useUser.mockReturnValue({ affiliate_code: 'abc123' })
     mocks.resolveEventPagePath.mockReturnValue('/event/event-1')
     mocks.resolveEventMarketPath.mockReturnValue('/event/event-1/market-1')
@@ -193,7 +193,7 @@ describe('eventShare', () => {
         affiliateCode: 'abc123',
         affiliateSharePercent: 40,
         builderTakerFeePercent: 1,
-        siteName: 'Kuest',
+        siteName: 'Cultural Exchange',
         context: 'link',
       })
     })
@@ -272,7 +272,7 @@ describe('eventShare', () => {
         affiliateCode: 'abc123',
         affiliateSharePercent: null,
         builderTakerFeePercent: null,
-        siteName: 'Kuest',
+        siteName: 'Cultural Exchange',
         context: 'link',
       })
     })
@@ -285,7 +285,7 @@ describe('eventShare', () => {
         affiliateCode: 'abc123',
         affiliateSharePercent: 40,
         builderTakerFeePercent: 1,
-        siteName: 'Kuest',
+        siteName: 'Cultural Exchange',
         context: 'link',
       })
     })

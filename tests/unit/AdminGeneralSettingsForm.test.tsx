@@ -63,7 +63,7 @@ describe('adminGeneralSettingsForm', () => {
     const { container } = render(
       <AdminGeneralSettingsForm
         initialThemeSiteSettings={{
-          siteName: 'Kuest',
+          siteName: 'Cultural Exchange',
           siteDescription: 'Prediction market',
           logoMode: 'svg',
           logoSvg: '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
@@ -120,7 +120,7 @@ describe('adminGeneralSettingsForm', () => {
     const { container } = render(
       <AdminGeneralSettingsForm
         initialThemeSiteSettings={{
-          siteName: 'Kuest',
+          siteName: 'Cultural Exchange',
           siteDescription: 'Prediction market',
           logoMode: 'svg',
           logoSvg: '<svg xmlns="http://www.w3.org/2000/svg"></svg>',

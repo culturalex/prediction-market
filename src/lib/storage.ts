@@ -280,11 +280,12 @@ export function getPublicAssetUrl(assetPath: string | null): string {
     return ''
   }
 
-  if (assetPath.startsWith('http://') || assetPath.startsWith('https://')) {
-    return assetPath
+  const trimmed = assetPath.trim()
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
+    return trimmed
   }
 
-  const normalizedPath = normalizeAssetPath(assetPath)
+  const normalizedPath = normalizeAssetPath(trimmed)
   const config = resolveStorageRuntimeConfig()
 
   if (config.provider === 'supabase' && config.supabaseUrl) {

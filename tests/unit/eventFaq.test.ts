@@ -188,7 +188,7 @@ describe('buildEventFaqItems', () => {
 
     const items = buildEventFaqItems({
       event,
-      siteName: 'Kuest',
+      siteName: 'Cultural Exchange',
       commentsCount: 3655,
       translate: testFaqTranslator,
     })
@@ -222,16 +222,16 @@ describe('buildEventFaqItems', () => {
 
     const items = buildEventFaqItems({
       event,
-      siteName: 'Kuest',
+      siteName: 'Cultural Exchange',
       commentsCount: 16,
       translate: testFaqTranslator,
     })
 
-    expect(items[0]?.answer).toContain('binary "Nothing Ever Happens: 2026" Kuest 63% 63¢')
+    expect(items[0]?.answer).toContain('binary "Nothing Ever Happens: 2026" Cultural Exchange 63% 63¢')
     expect(items[1]?.answer).toContain('volume=$17.2K')
     expect(items[3]?.answer).toContain('current-binary "Nothing Ever Happens: 2026" probability=63%')
     expect(items[8]?.question).toBe('price-question-binary 63¢')
-    expect(items[8]?.answer).toContain('price-binary Kuest 63¢ "Nothing Ever Happens: 2026" 63% 37¢')
+    expect(items[8]?.answer).toContain('price-binary Cultural Exchange 63¢ "Nothing Ever Happens: 2026" 63% 37¢')
     expect(items[10]?.answer).toContain('16')
   })
 
@@ -268,14 +268,14 @@ describe('buildEventFaqItems', () => {
 
     const items = buildEventFaqItems({
       event,
-      siteName: 'Kuest',
+      siteName: 'Cultural Exchange',
       commentsCount: 2,
       translate: testFaqTranslator,
     })
 
     expect(items[1]?.answer).toContain('low-volume')
     expect(items[1]?.answer).toContain('launched')
-    expect(items[6]?.answer).toContain('reliable Kuest')
+    expect(items[6]?.answer).toContain('reliable Cultural Exchange')
     expect(items[9]?.answer).toContain('resolved')
     expect(items[10]?.answer).toContain('low-comments')
   })
@@ -317,7 +317,7 @@ describe('buildEventFaqItems', () => {
 
     const items = buildEventFaqItems({
       event,
-      siteName: 'Kuest',
+      siteName: 'Cultural Exchange',
       commentsCount: 1238,
       translate: testFaqTranslator,
     })

@@ -37,8 +37,8 @@ describe('termsOfUsePage', () => {
     mocks.setRequestLocale.mockReset()
 
     mocks.getSettings.mockResolvedValue({ data: {}, error: null })
-    mocks.getThemeSiteSettingsFormState.mockReturnValue({ siteName: 'Kuest' })
-    mocks.loadRuntimeThemeState.mockResolvedValue({ site: { name: 'Kuest' } })
+    mocks.getThemeSiteSettingsFormState.mockReturnValue({ siteName: 'Cultural Exchange' })
+    mocks.loadRuntimeThemeState.mockResolvedValue({ site: { name: 'Cultural Exchange' } })
   })
 
   it('renders the uploaded PDF instead of the built-in content when configured', async () => {
