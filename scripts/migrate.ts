@@ -339,9 +339,18 @@ async function createSyncVolumeCron(
   cronSecret: string,
 ): Promise<void> {
   await createSyncCron(sql, {
-    jobName: 'sync-volume',
+    jobName: 'sync-volume-enqueue',
     schedule: '*/10 * * * *',
-    endpointPath: '/api/sync/volume?limit=10',
+    endpointPath: '/api/sync/volume/enqueue',
+    siteUrl,
+    cronSecret,
+    timeoutMilliseconds: 10000,
+  })
+
+  await createSyncCron(sql, {
+    jobName: 'sync-volume',
+    schedule: '*/5 * * * *',
+    endpointPath: '/api/sync/volume',
     siteUrl,
     cronSecret,
     timeoutMilliseconds: 30000,
@@ -354,11 +363,21 @@ async function createSyncTranslationsCron(
   cronSecret: string,
 ): Promise<void> {
   await createSyncCron(sql, {
+    jobName: 'sync-translations-enqueue',
+    schedule: '17 * * * *',
+    endpointPath: '/api/sync/translations/enqueue',
+    siteUrl,
+    cronSecret,
+    timeoutMilliseconds: 20000,
+  })
+
+  await createSyncCron(sql, {
     jobName: 'sync-translations',
-    schedule: '13,37 * * * *',
+    schedule: '18 * * * *',
     endpointPath: '/api/sync/translations',
     siteUrl,
     cronSecret,
+    timeoutMilliseconds: 30000,
   })
 }
 
@@ -382,8 +401,17 @@ async function createSyncEventCreationsCron(
   cronSecret: string,
 ): Promise<void> {
   await createSyncCron(sql, {
-    jobName: 'sync-event-creations',
+    jobName: 'sync-event-creations-enqueue',
     schedule: '0,30 * * * *',
+    endpointPath: '/api/sync/event-creations/enqueue',
+    siteUrl,
+    cronSecret,
+    timeoutMilliseconds: 10000,
+  })
+
+  await createSyncCron(sql, {
+    jobName: 'sync-event-creations',
+    schedule: '1,31 * * * *',
     endpointPath: '/api/sync/event-creations',
     siteUrl,
     cronSecret,

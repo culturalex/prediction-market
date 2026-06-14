@@ -66,6 +66,7 @@ import {
 } from '@/lib/optimistic-trading'
 import { calculateMarketFill, normalizeBookLevels } from '@/lib/order-panel-utils'
 import { buildOrderPayload, submitOrder } from '@/lib/orders'
+import { resolveOrderExpirationTimestamp } from '@/lib/orders/expiration'
 import { signOrderPayload } from '@/lib/orders/signing'
 import { MIN_LIMIT_ORDER_SHARES, validateOrder } from '@/lib/orders/validation'
 import { isTradingAuthRequiredError } from '@/lib/trading-auth/errors'
@@ -111,36 +112,6 @@ function markConditionAsClaimedInPositions<T extends {
   })
 
   return hasChanges ? next : positions
-}
-
-function resolveValidCustomExpirationTimestamp(params: {
-  limitExpirationOption: string
-  limitExpirationTimestamp: number | null | undefined
-  nowSeconds: number
-}) {
-  const { limitExpirationOption, limitExpirationTimestamp, nowSeconds } = params
-
-  if (limitExpirationOption !== 'custom') {
-    return null
-  }
-
-  if (
-    !limitExpirationTimestamp
-    || !Number.isFinite(limitExpirationTimestamp)
-    || limitExpirationTimestamp <= 0
-  ) {
-    return null
-  }
-
-  return limitExpirationTimestamp > nowSeconds
-    ? limitExpirationTimestamp
-    : null
-}
-
-function resolveEndOfDayTimestamp() {
-  const now = new Date(Date.now())
-  now.setHours(23, 59, 59, 0)
-  return Math.floor(now.getTime() / 1000)
 }
 
 function mergeUserSharesByCondition(
@@ -911,6 +882,8 @@ export default function EventOrderPanelForm({
     currentTimestamp,
     resolveDisplayOutcomeLabel,
   })
+  const isPausedMarket = Boolean(activeMarket && activeMarket.accepting_orders === false && !isResolvedMarket)
+  const isTradingDisabled = isResolvedMarket || isPausedMarket
   const orderDomain = useMemo(() => getExchangeEip712Domain(isNegRiskMarket), [isNegRiskMarket])
   const { positionsQuery, aggregatedPositionShares } = useEventOrderPanelPositions({
     makerAddress,
@@ -1103,13 +1076,12 @@ export default function EventOrderPanelForm({
   }
 
   async function onSubmit() {
-    const nowSeconds = Math.floor(Date.now() / 1000)
-    const validCustomExpirationTimestamp = resolveValidCustomExpirationTimestamp({
+    const orderExpirationTimestamp = resolveOrderExpirationTimestamp({
       limitExpirationOption: state.limitExpirationOption,
       limitExpirationTimestamp: state.limitExpirationTimestamp,
-      nowSeconds,
+      nowMs: Date.now(),
     })
-    const endOfDayTimestamp = resolveEndOfDayTimestamp()
+    const hasExpirationLimit = state.limitExpirationOption !== 'never'
 
     if (!ensureTradingReady()) {
       return
@@ -1146,9 +1118,8 @@ export default function EventOrderPanelForm({
       limitShares: state.limitShares,
       availableBalance: availableBalanceForOrders,
       availableShares: selectedShares,
-      limitExpirationEnabled: state.limitExpirationEnabled,
       limitExpirationOption: state.limitExpirationOption,
-      limitExpirationTimestamp: validCustomExpirationTimestamp,
+      limitExpirationTimestamp: orderExpirationTimestamp,
     })
 
     if (!validation.ok) {
@@ -1225,10 +1196,6 @@ export default function EventOrderPanelForm({
       return
     }
 
-    const customExpirationTimestamp = state.limitExpirationOption === 'custom'
-      ? validCustomExpirationTimestamp
-      : null
-
     const effectiveAmountForOrder = (() => {
       if (state.type === ORDER_TYPE.MARKET) {
         if (state.side === ORDER_SIDE.SELL) {
@@ -1269,9 +1236,7 @@ export default function EventOrderPanelForm({
       limitShares: state.limitShares,
       marketPriceCents: marketLimitPriceCents,
       builder: builderCode,
-      expirationTimestamp: state.limitExpirationEnabled
-        ? (customExpirationTimestamp ?? endOfDayTimestamp)
-        : undefined,
+      expirationTimestamp: orderExpirationTimestamp ?? undefined,
     })
     const submittedSide = state.side
     const submittedIsLimitOrder = state.type === ORDER_TYPE.LIMIT
@@ -1341,7 +1306,7 @@ export default function EventOrderPanelForm({
         order: payload,
         signature,
         orderType: state.type,
-        clobOrderType: state.type === ORDER_TYPE.LIMIT && state.limitExpirationEnabled
+        clobOrderType: state.type === ORDER_TYPE.LIMIT && hasExpirationLimit
           ? CLOB_ORDER_TYPE.GTD
           : undefined,
         conditionId: activeMarket.condition_id,
@@ -1472,11 +1437,11 @@ export default function EventOrderPanelForm({
         const optimisticOrder = buildOptimisticOpenOrder({
           id: orderId,
           side: submittedSide === ORDER_SIDE.BUY ? 'buy' : 'sell',
-          type: state.limitExpirationEnabled ? CLOB_ORDER_TYPE.GTD : CLOB_ORDER_TYPE.GTC,
+          type: hasExpirationLimit ? CLOB_ORDER_TYPE.GTD : CLOB_ORDER_TYPE.GTC,
           price: limitPriceValue,
           shares: limitSharesValue,
           totalValue,
-          expiration: state.limitExpirationEnabled ? Number(payload.expiration) : null,
+          expiration: hasExpirationLimit ? Number(payload.expiration) : null,
           outcomeIndex: submittedOutcomeIndex as typeof OUTCOME_INDEX.YES | typeof OUTCOME_INDEX.NO,
           outcomeText: submittedOutcomeText,
           conditionId: activeMarket.condition_id,
@@ -1718,10 +1683,10 @@ export default function EventOrderPanelForm({
         'rounded-xl border lg:w-85': !isMobile,
       }, 'w-full p-4 lg:shadow-xl/5')}
     >
-      {!isResolvedMarket && !isMobile && (
+      {!isTradingDisabled && !isMobile && (
         desktopMarketInfo ?? (!isSingleMarket ? <EventOrderPanelMarketInfo market={activeMarket} /> : null)
       )}
-      {!isResolvedMarket && isMobile && (
+      {!isTradingDisabled && isMobile && (
         mobileMarketInfo
         ?? (
           <EventOrderPanelMobileMarketInfo
@@ -1733,9 +1698,10 @@ export default function EventOrderPanelForm({
           />
         )
       )}
-      {isResolvedMarket
+      {isTradingDisabled
         ? (
             <EventOrderPanelResolvedMarketDisplay
+              variant={isPausedMarket ? 'paused' : 'resolved'}
               resolvedOutcomeLabel={resolvedOutcomeLabel}
               isSingleMarket={isSingleMarket}
               shouldShowResolvedSportsSubtitle={shouldShowResolvedSportsSubtitle}
@@ -1824,7 +1790,6 @@ export default function EventOrderPanelForm({
                 showAmountTooLowWarning={showAmountTooLowWarning}
                 limitPrice={state.limitPrice}
                 limitShares={state.limitShares}
-                limitExpirationEnabled={state.limitExpirationEnabled}
                 limitExpirationOption={state.limitExpirationOption}
                 limitExpirationTimestamp={state.limitExpirationTimestamp}
                 limitMatchingShares={limitMatchingShares}
@@ -1834,7 +1799,6 @@ export default function EventOrderPanelForm({
                 onAmountChange={handleAmountChange}
                 onLimitPriceChange={handleLimitPriceChange}
                 onLimitSharesChange={handleLimitSharesChange}
-                onLimitExpirationEnabledChange={state.setLimitExpirationEnabled}
                 onLimitExpirationOptionChange={state.setLimitExpirationOption}
                 onLimitExpirationTimestampChange={state.setLimitExpirationTimestamp}
                 onAmountUpdateFromLimit={state.setAmount}
