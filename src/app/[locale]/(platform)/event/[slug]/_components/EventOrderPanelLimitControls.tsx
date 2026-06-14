@@ -13,6 +13,12 @@ import {
   DialogContent,
 } from '@/components/ui/dialog'
 import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -22,9 +28,10 @@ import { Input } from '@/components/ui/input'
 import { NumberInput } from '@/components/ui/number-input'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useBalance } from '@/hooks/useBalance'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import { formatDisplayAmount, getAmountSizeClass, MAX_AMOUNT_INPUT, sanitizeNumericInput } from '@/lib/amount-input'
 import { ORDER_SIDE } from '@/lib/constants'
-import { formatAmountInputValue, formatCurrency, formatSharesLabel } from '@/lib/formatters'
+import { formatAmountInputValue, formatCurrency, formatDollarValueLabel, formatSharesLabel } from '@/lib/formatters'
 import { MIN_LIMIT_ORDER_SHARES } from '@/lib/orders/validation'
 import { cn } from '@/lib/utils'
 import { usePortfolioValueVisibility } from '@/stores/usePortfolioValueVisibility'
@@ -135,6 +142,7 @@ export default function EventOrderPanelLimitControls({
   onAmountUpdateFromLimit,
 }: EventOrderPanelLimitControlsProps) {
   const t = useExtracted()
+  const isMobile = useIsMobile()
   const { balance } = useBalance()
   const areValuesHidden = usePortfolioValueVisibility(state => state.isHidden)
   const { limitPriceNumber, limitSharesNumber, totalValue, potentialWin } = useLimitControlsDerived(limitPrice, limitShares, side)
@@ -159,7 +167,7 @@ export default function EventOrderPanelLimitControls({
   const maxSharesForSide = MAX_AMOUNT_INPUT
 
   const locale = useLocale()
-  const totalValueLabel = formatCurrency(totalValue)
+  const totalValueLabel = formatDollarValueLabel(totalValue, { fallback: '0¢' })
   const safeTotalValueLabel = totalValueLabel.trim() ? totalValueLabel : '0'
   const americanOddsLabel = americanOdds != null
     ? `${americanOdds >= 0 ? '+' : ''}${americanOdds.toFixed(1)}`
@@ -574,23 +582,48 @@ export default function EventOrderPanelLimitControls({
         </div>
       )}
 
-      <Dialog open={isExpirationModalOpen} onOpenChange={handleExpirationModalChange}>
-        <DialogContent className="w-fit border-0 bg-transparent p-0 shadow-none">
-          {isExpirationModalOpen && (
-            <EventLimitExpirationCalendar
-              title={t('Select expiration')}
-              value={draftExpiration ?? undefined}
-              onChange={(nextDate) => {
-                if (nextDate) {
-                  setDraftExpiration(nextDate)
-                }
-              }}
-              onCancel={() => setIsExpirationModalOpen(false)}
-              onApply={handleApplyExpiration}
-            />
+      {isMobile
+        ? (
+            <Drawer open={isExpirationModalOpen} onOpenChange={handleExpirationModalChange}>
+              <DrawerContent className="max-h-[90vh] w-full bg-background px-4 pt-4 pb-6">
+                <DrawerHeader className="space-y-2 p-0 text-left">
+                  <DrawerTitle>{t('Select expiration')}</DrawerTitle>
+                </DrawerHeader>
+                {isExpirationModalOpen && (
+                  <EventLimitExpirationCalendar
+                    className="max-w-none min-w-0 border-0 shadow-none"
+                    value={draftExpiration ?? undefined}
+                    onChange={(nextDate) => {
+                      if (nextDate) {
+                        setDraftExpiration(nextDate)
+                      }
+                    }}
+                    onCancel={() => setIsExpirationModalOpen(false)}
+                    onApply={handleApplyExpiration}
+                  />
+                )}
+              </DrawerContent>
+            </Drawer>
+          )
+        : (
+            <Dialog open={isExpirationModalOpen} onOpenChange={handleExpirationModalChange}>
+              <DialogContent className="w-fit border-0 bg-transparent p-0 shadow-none">
+                {isExpirationModalOpen && (
+                  <EventLimitExpirationCalendar
+                    title={t('Select expiration')}
+                    value={draftExpiration ?? undefined}
+                    onChange={(nextDate) => {
+                      if (nextDate) {
+                        setDraftExpiration(nextDate)
+                      }
+                    }}
+                    onCancel={() => setIsExpirationModalOpen(false)}
+                    onApply={handleApplyExpiration}
+                  />
+                )}
+              </DialogContent>
+            </Dialog>
           )}
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

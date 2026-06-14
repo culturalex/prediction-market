@@ -19,6 +19,7 @@ import { useDebounce } from '@/hooks/useDebounce'
 import { useHasHydrated } from '@/hooks/useHasHydrated'
 import { fetchEventsApi } from '@/lib/events-api'
 import { HOME_EVENTS_PAGE_SIZE, isEventResolvedLike } from '@/lib/home-events'
+import { getDefaultHomeRouteSortBy } from '@/lib/home-route-sort'
 import { resolveDisplayPrice } from '@/lib/market-chance'
 import { buildHomeSportsMoneylineModel } from '@/lib/sports-home-card'
 import { useUser } from '@/stores/useUser'
@@ -114,6 +115,7 @@ async function fetchEvents({
     frequency: filters.frequency,
     homeFeed: true,
     status: filters.status,
+    sort: filters.sortBy,
     offset: pageParam,
     locale,
     currentTimestamp,
@@ -124,6 +126,7 @@ async function fetchEvents({
 }
 
 interface UseEventsListParams {
+  bookmarkedOnly: boolean
   data: InfiniteData<Event[], unknown> | undefined
   snapshotKey: string
   status: string
@@ -150,20 +153,28 @@ function deleteEmptySuccessEventsSnapshot(
   eventsSnapshotCache.delete(snapshotKey)
 }
 
+function filterBookmarkedOnlyEvents(events: Event[], bookmarkedOnly: boolean) {
+  return bookmarkedOnly ? events.filter(event => event.is_bookmarked) : events
+}
+
 function useEventsList({
+  bookmarkedOnly,
   data,
   snapshotKey,
   status,
   initialSnapshotEvents,
 }: UseEventsListParams) {
-  const allEvents = useMemo(() => (data ? data.pages.flat() : []), [data])
+  const allEvents = useMemo(
+    () => filterBookmarkedOnlyEvents(data ? data.pages.flat() : [], bookmarkedOnly),
+    [bookmarkedOnly, data],
+  )
   const visibleEvents = useMemo(
     () => (allEvents.length === 0 ? EMPTY_EVENTS : allEvents),
     [allEvents],
   )
   const cachedSnapshotEvents = useMemo(
-    () => peekEventsSnapshot(snapshotKey) ?? initialSnapshotEvents,
-    [initialSnapshotEvents, snapshotKey],
+    () => filterBookmarkedOnlyEvents(peekEventsSnapshot(snapshotKey) ?? initialSnapshotEvents, bookmarkedOnly),
+    [bookmarkedOnly, initialSnapshotEvents, snapshotKey],
   )
 
   useEffect(function persistVisibleEventsSnapshot() {
@@ -403,6 +414,7 @@ export default function EventsGrid({
     intervalMs: HOME_FEED_REFRESH_INTERVAL_MS,
   })
   const hasHydrated = useHasHydrated()
+  const routeDefaultSortBy = getDefaultHomeRouteSortBy(routeTag)
   const snapshotKey = [
     locale,
     routeMainTag,
@@ -413,6 +425,7 @@ export default function EventsGrid({
     filters.bookmarked ? 'bookmarked' : 'all-events',
     queryUserScope,
     filters.frequency,
+    filters.sortBy,
     filters.status,
     filters.hideSports ? 'hide-sports' : 'show-sports',
     filters.hideCrypto ? 'hide-crypto' : 'show-crypto',
@@ -423,6 +436,7 @@ export default function EventsGrid({
     && filters.search === ''
     && !filters.bookmarked
     && filters.frequency === 'all'
+    && filters.sortBy === routeDefaultSortBy
     && filters.status === 'active'
     && !filters.hideSports
     && !filters.hideCrypto
@@ -447,6 +461,7 @@ export default function EventsGrid({
     filters.search,
     filters.bookmarked ? 'bookmarked' : 'all-events',
     filters.frequency,
+    filters.sortBy,
     filters.status,
     filters.hideSports ? 'hide-sports' : 'show-sports',
     filters.hideCrypto ? 'hide-crypto' : 'show-crypto',
@@ -462,6 +477,7 @@ export default function EventsGrid({
     filters.search,
     filters.bookmarked,
     filters.frequency,
+    filters.sortBy,
     filters.status,
     filters.hideSports,
     filters.hideCrypto,
@@ -502,6 +518,7 @@ export default function EventsGrid({
   })
 
   const { allEvents, visibleEvents, cachedSnapshotEvents } = useEventsList({
+    bookmarkedOnly: filters.bookmarked,
     data,
     snapshotKey,
     status,

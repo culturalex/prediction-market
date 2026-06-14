@@ -13,40 +13,40 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@/lib/db/queries/event', () => ({
   EventRepository: {
-    getEventMarketMetadata: (...args: any[]) => mocks.getEventMarketMetadata(...args),
+    getEventMarketMetadata: mocks.getEventMarketMetadata,
   },
 }))
 
 vi.mock('@/lib/db/queries/user', () => ({
   UserRepository: {
-    getCurrentUser: (...args: any[]) => mocks.getCurrentUser(...args),
+    getCurrentUser: mocks.getCurrentUser,
   },
 }))
 
 vi.mock('@/lib/db/utils/run-query', () => ({
-  runQuery: (...args: any[]) => mocks.runQuery(...args),
+  runQuery: mocks.runQuery,
 }))
 
 vi.mock('@/lib/drizzle', () => ({
   db: {
     query: {
       markets: {
-        findMany: (...args: any[]) => mocks.findMany(...args),
+        findMany: mocks.findMany,
       },
     },
   },
 }))
 
 vi.mock('@/lib/hmac', () => ({
-  buildClobHmacSignature: (...args: any[]) => mocks.buildClobHmacSignature(...args),
+  buildClobHmacSignature: mocks.buildClobHmacSignature,
 }))
 
 vi.mock('@/lib/storage', () => ({
-  getPublicAssetUrl: (...args: any[]) => mocks.getPublicAssetUrl(...args),
+  getPublicAssetUrl: mocks.getPublicAssetUrl,
 }))
 
 vi.mock('@/lib/trading-auth/server', () => ({
-  getUserTradingAuthSecrets: (...args: any[]) => mocks.getUserTradingAuthSecrets(...args),
+  getUserTradingAuthSecrets: mocks.getUserTradingAuthSecrets,
 }))
 
 function address(lastByte: string) {
@@ -135,7 +135,6 @@ describe('open orders routes', () => {
           expiration: '0',
           order_type: 'GTD',
           created_at: '2026-05-23T00:00:00.000Z',
-          updated_at: '2026-05-23T00:01:00.000Z',
         },
       ]),
     })
@@ -236,7 +235,6 @@ describe('open orders routes', () => {
           expiration: '0',
           order_type: 'GTD',
           created_at: '2026-05-23T00:00:00.000Z',
-          updated_at: '2026-05-23T00:01:00.000Z',
         },
       ]),
     })

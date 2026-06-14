@@ -23,6 +23,7 @@ import type {
   PrepareFinalizeRequestTx,
   PrepareResponse,
   PrepareTxPlanItem,
+  ProposerWhitelistCheckState,
   SlugCheckResponse,
   SlugValidationState,
 } from './admin-create-event-form-types'
@@ -33,7 +34,7 @@ import { toHex } from 'viem'
 import { buildAdminSportsStepErrors, isSportsMainCategory } from '@/lib/admin-sports-create'
 import { normalizeDateTimeLocalValue } from '@/lib/datetime-local'
 import { slugifyEventCreationValue as slugify } from '@/lib/event-creation'
-import { IS_TEST_MODE, POLYGON_SCAN_BASE } from '@/lib/network'
+import { AMOY_CHAIN_ID, IS_TEST_MODE, POLYGON_MAINNET_CHAIN_ID, POLYGON_SCAN_BASE } from '@/lib/network'
 import { MIN_SUB_CATEGORIES, TITLE_CATEGORY_MIN_LENGTH } from './admin-create-event-form-constants'
 
 export function readApiError(payload: unknown): string | null {
@@ -480,6 +481,7 @@ export function buildStepErrors(
     fundingCheckState: FundingCheckState
     nativeGasCheckState: NativeGasCheckState
     allowedCreatorCheckState: AllowedCreatorCheckState
+    proposerWhitelistCheckState: ProposerWhitelistCheckState
     openRouterCheckState: OpenRouterCheckState
     contentCheckState: ContentCheckState
     hasPendingAiErrors: boolean
@@ -654,6 +656,19 @@ export function buildStepErrors(
       errors.push('Main EOA wallet is not in allowed market creator wallets.')
     }
 
+    if (args.proposerWhitelistCheckState === 'idle' || args.proposerWhitelistCheckState === 'checking') {
+      errors.push('Run the resolution proposers whitelist check first.')
+    }
+    else if (args.proposerWhitelistCheckState === 'no_wallet') {
+      errors.push('Connect the main EOA wallet first.')
+    }
+    else if (args.proposerWhitelistCheckState === 'error') {
+      errors.push('Could not validate resolution proposers whitelist right now.')
+    }
+    else if (args.proposerWhitelistCheckState !== 'ok') {
+      errors.push('Create the resolution proposers whitelist before signing.')
+    }
+
     if (args.slugValidationState === 'idle' || args.slugValidationState === 'checking') {
       errors.push('Run slug availability check first.')
     }
@@ -695,22 +710,16 @@ export function getExplorerTxBase() {
   return `${POLYGON_SCAN_BASE}/tx/`
 }
 
-export function getChainLabel() {
+export function getChainLabel(chainId?: number | null) {
+  if (chainId === AMOY_CHAIN_ID) {
+    return 'Polygon Amoy'
+  }
+
+  if (chainId === POLYGON_MAINNET_CHAIN_ID) {
+    return 'Polygon'
+  }
+
   return IS_TEST_MODE ? 'Polygon Amoy' : 'Polygon'
-}
-
-export function parseMinTipCapFromError(errorMessage: string): bigint | null {
-  const match = errorMessage.match(/minimum needed\s+(\d+)/i)
-  if (!match?.[1]) {
-    return null
-  }
-
-  try {
-    return BigInt(match[1])
-  }
-  catch {
-    return null
-  }
 }
 
 export function isAlreadyInitializedError(message: string): boolean {
@@ -726,6 +735,7 @@ export function buildRpcTransactionRequest(params: {
   to: `0x${string}`
   data: `0x${string}`
   value?: bigint
+  gas?: bigint
   maxFeePerGas?: bigint
   maxPriorityFeePerGas?: bigint
 }) {
@@ -734,6 +744,7 @@ export function buildRpcTransactionRequest(params: {
     to: `0x${string}`
     data: `0x${string}`
     value: Hex
+    gas?: Hex
     maxFeePerGas?: Hex
     maxPriorityFeePerGas?: Hex
   } = {
@@ -741,6 +752,10 @@ export function buildRpcTransactionRequest(params: {
     to: params.to,
     data: params.data,
     value: toHex(params.value ?? 0n),
+  }
+
+  if (typeof params.gas === 'bigint') {
+    request.gas = toHex(params.gas)
   }
 
   if (typeof params.maxFeePerGas === 'bigint') {
@@ -760,6 +775,9 @@ export function mapSignatureFlowErrorForUser(message: string): string {
   }
   if (/too many subrequests|finalize failed \(5\d\d\)|unexpected server error|internal server error/i.test(message)) {
     return 'Could not finalize the market right now. Please wait a few moments and retry the pending plan.'
+  }
+  if (/creator_whitelist_missing|creator must deploy\/register a proposer whitelist/i.test(message)) {
+    return 'Create the resolution proposers whitelist before signing.'
   }
   if (/request arguments:/i.test(message) || /unknown rpc error/i.test(message)) {
     return 'Could not send transaction right now. Please try again in a few moments.'

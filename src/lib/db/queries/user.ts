@@ -1,3 +1,4 @@
+import type { SQL } from 'drizzle-orm'
 import type { DepositWalletStatus, MarketOrderType, User } from '@/types'
 import { asc, count, desc, eq, ilike, inArray, or, sql } from 'drizzle-orm'
 import { headers } from 'next/headers'
@@ -12,6 +13,20 @@ import { isDepositWalletDeployed } from '@/lib/deposit-wallet'
 import { db } from '@/lib/drizzle'
 import { getPublicAssetUrl } from '@/lib/storage'
 import { normalizeAddress } from '@/lib/wallet'
+
+function sanitizeUserSearchTerm(search: string) {
+  return search
+    .trim()
+    .replace(/[,()]/g, ' ')
+    .replace(/['"]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function buildUsernameSearchCondition(searchTerm: string) {
+  const loweredUsername = sql<string>`LOWER(${users.username})`
+  return ilike(loweredUsername, `%${searchTerm.toLowerCase()}%`)
+}
 
 export const UserRepository = {
   async getProfileByUsernameOrDepositWalletAddress(username: string) {
@@ -116,9 +131,28 @@ export const UserRepository = {
     })
   },
 
-  async updateUserTradingSettings(currentUser: User, preferences: { market_order_type: MarketOrderType }) {
-    return await runQuery(async () => {
+  async updateUserTradingSettings(
+    currentUser: User,
+    preferences: { market_order_type?: MarketOrderType, show_slippage_warning?: boolean },
+  ) {
+    const tradingPatchEntries: SQL[] = []
+
+    if (preferences.market_order_type !== undefined) {
       const marketOrderType = preferences.market_order_type
+      tradingPatchEntries.push(sql`'market_order_type', to_jsonb(${marketOrderType}::text)`)
+    }
+
+    if (preferences.show_slippage_warning !== undefined) {
+      const showSlippageWarning = preferences.show_slippage_warning
+      tradingPatchEntries.push(sql`'show_slippage_warning', to_jsonb(${showSlippageWarning}::boolean)`)
+    }
+
+    if (tradingPatchEntries.length === 0) {
+      return { data: { id: currentUser.id }, error: null }
+    }
+
+    return await runQuery(async () => {
+      const tradingPatch = sql`jsonb_build_object(${sql.join(tradingPatchEntries, sql`, `)})`
       const normalizedSettings = sql`
         CASE
           WHEN jsonb_typeof(coalesce(${users.settings}, '{}'::jsonb)) = 'object'
@@ -140,7 +174,7 @@ export const UserRepository = {
                     THEN ${normalizedSettings}->'trading'
                   ELSE '{}'::jsonb
                 END
-                || jsonb_build_object('market_order_type', to_jsonb(${marketOrderType}::text))
+                || ${tradingPatch}
               ),
               true
             )
@@ -257,15 +291,10 @@ export const UserRepository = {
 
       let whereCondition
       if (search && search.trim()) {
-        const searchTerm = search.trim()
-        const sanitizedSearchTerm = searchTerm
-          .replace(/[,()]/g, ' ')
-          .replace(/['"]/g, '')
-          .replace(/\s+/g, ' ')
-          .trim()
+        const sanitizedSearchTerm = sanitizeUserSearchTerm(search)
 
         if (sanitizedSearchTerm) {
-          const usernameCondition = ilike(users.username, `%${sanitizedSearchTerm}%`)
+          const usernameCondition = buildUsernameSearchCondition(sanitizedSearchTerm)
           whereCondition = searchByUsernameOnly
             ? usernameCondition
             : or(
@@ -336,6 +365,44 @@ export const UserRepository = {
     }
 
     return { data: data.users, error: null, count: data.count }
+  },
+
+  async searchPublicProfiles(params: {
+    limit?: number
+    search: string
+  }) {
+    'use cache'
+
+    const { data, error } = await runQuery(async () => {
+      const sanitizedSearchTerm = sanitizeUserSearchTerm(params.search)
+
+      if (!sanitizedSearchTerm) {
+        return { data: [], error: null }
+      }
+
+      const limit = Math.min(Math.max(params.limit ?? 10, 1), 100)
+      const rows = await db
+        .select({
+          id: users.id,
+          username: users.username,
+          address: users.address,
+          deposit_wallet_address: users.deposit_wallet_address,
+          created_at: users.created_at,
+          image: users.image,
+        })
+        .from(users)
+        .where(buildUsernameSearchCondition(sanitizedSearchTerm))
+        .orderBy(asc(users.username), asc(users.address))
+        .limit(limit)
+
+      return { data: rows, error: null }
+    })
+
+    if (!data || error) {
+      return { data: null, error: error || DEFAULT_ERROR_MESSAGE }
+    }
+
+    return { data, error: null }
   },
 
   async getUsersByIds(ids: string[]) {

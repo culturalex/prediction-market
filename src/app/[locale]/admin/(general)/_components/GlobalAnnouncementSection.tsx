@@ -1,10 +1,12 @@
 'use client'
 
 import type { CustomJavascriptCodeDisablePage } from '@/lib/custom-javascript-code'
+import { Megaphone } from 'lucide-react'
 import { useExtracted } from 'next-intl'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 import SettingsAccordionSection from './SettingsAccordionSection'
 
@@ -26,6 +28,8 @@ interface GlobalAnnouncementSectionProps {
   onGlobalAnnouncementLinkUrlChange: (value: string) => void
   globalAnnouncementDisabledOn: CustomJavascriptCodeDisablePage[]
   onToggleGlobalAnnouncementDisableOn: (value: CustomJavascriptCodeDisablePage, checked: boolean) => void
+  globalAnnouncementDisableFaucetBanner: boolean
+  onGlobalAnnouncementDisableFaucetBannerChange: (value: boolean) => void
   customJavascriptCodeDisablePageOptions: DisablePageOption[]
 }
 
@@ -39,6 +43,8 @@ function GlobalAnnouncementSection({
   onGlobalAnnouncementLinkUrlChange,
   globalAnnouncementDisabledOn,
   onToggleGlobalAnnouncementDisableOn,
+  globalAnnouncementDisableFaucetBanner,
+  onGlobalAnnouncementDisableFaucetBannerChange,
   customJavascriptCodeDisablePageOptions,
 }: GlobalAnnouncementSectionProps) {
   const t = useExtracted()
@@ -48,7 +54,12 @@ function GlobalAnnouncementSection({
       value="global-announcement"
       isOpen={openSections.includes('global-announcement')}
       onToggle={onToggleSection}
-      header={<h3 className="text-base font-medium">{t('Global announcement banner')}</h3>}
+      header={(
+        <h3 className="flex items-center gap-2 text-base font-medium">
+          <Megaphone className="size-4 text-muted-foreground" />
+          {t('Global announcement banner')}
+        </h3>
+      )}
     >
       <div className="grid gap-4">
         <div className="grid gap-2">
@@ -109,6 +120,23 @@ function GlobalAnnouncementSection({
               )
             })}
           </div>
+        </div>
+
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-border/60 px-3 py-2.5">
+          <div className="grid gap-1">
+            <Label htmlFor="global-announcement-disable-faucet-banner">
+              {t('Disable Faucet Banner')}
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              {t('Hide the test-mode faucet banner for everyone.')}
+            </p>
+          </div>
+          <Switch
+            id="global-announcement-disable-faucet-banner"
+            checked={globalAnnouncementDisableFaucetBanner}
+            disabled={isPending}
+            onCheckedChange={onGlobalAnnouncementDisableFaucetBannerChange}
+          />
         </div>
       </div>
     </SettingsAccordionSection>

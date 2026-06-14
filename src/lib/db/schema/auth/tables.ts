@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm'
 import {
   boolean,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -30,6 +31,7 @@ export const users = pgTable(
       .default({
         trading: {
           market_order_type: CLOB_ORDER_TYPE.FAK,
+          show_slippage_warning: false,
         },
       }),
     deposit_wallet_address: text('deposit_wallet_address'),
@@ -42,6 +44,7 @@ export const users = pgTable(
   },
   table => ({
     usernameLowerUniqueIdx: uniqueIndex('idx_users_username').on(sql`LOWER(${table.username})`),
+    usernameSearchIdx: index('idx_users_username_lower_gin_trgm').using('gin', sql`LOWER(${table.username}) gin_trgm_ops`),
   }),
 )
 
