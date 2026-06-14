@@ -30,7 +30,7 @@ vi.mock('@/components/AppLink', () => ({
 }))
 
 vi.mock('@/hooks/useSiteIdentity', () => ({
-  useSiteIdentity: () => ({ name: 'Cultural Exchange' }),
+  useSiteIdentity: () => ({ name: 'Kuest' }),
 }))
 
 vi.mock('@/hooks/useIsMobile', () => ({

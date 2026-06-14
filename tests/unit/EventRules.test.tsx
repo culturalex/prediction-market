@@ -18,7 +18,7 @@ vi.mock('@/components/ui/button', () => ({
 }))
 
 vi.mock('@/hooks/useSiteIdentity', () => ({
-  useSiteIdentity: () => ({ name: 'Cultural Exchange' }),
+  useSiteIdentity: () => ({ name: 'Kuest' }),
 }))
 
 vi.mock('@/lib/uma', () => ({

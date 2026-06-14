@@ -172,8 +172,8 @@ export default function AdminAffiliateSettingsForm({
             />
             <p className="text-sm text-muted-foreground">
               {takerKuestFeeLabel
-                ? t('Your fee plus Cultural Exchange {kuestFee}% fee.', { kuestFee: takerKuestFeeLabel })
-                : t('Cultural Exchange fees unavailable.')}
+                ? t('Your fee plus Kuest {kuestFee}% fee.', { kuestFee: takerKuestFeeLabel })
+                : t('Kuest fees unavailable.')}
             </p>
           </div>
           <div className="grid gap-2">
@@ -190,8 +190,8 @@ export default function AdminAffiliateSettingsForm({
             />
             <p className="text-sm text-muted-foreground">
               {makerKuestFeeLabel
-                ? t('Your fee plus Cultural Exchange {kuestFee}% fee.', { kuestFee: makerKuestFeeLabel })
-                : t('Cultural Exchange fees unavailable.')}
+                ? t('Your fee plus Kuest {kuestFee}% fee.', { kuestFee: makerKuestFeeLabel })
+                : t('Kuest fees unavailable.')}
             </p>
           </div>
         </div>

@@ -103,7 +103,7 @@ describe('structuredData', () => {
 
     const site = {
       ...createDefaultThemeSiteIdentity(),
-      name: 'Cultural Exchange',
+      name: 'Kuest',
       description: 'Prediction markets',
       discordLink: 'https://discord.gg/kuest',
       twitterLink: 'https://x.com/kuest',
@@ -139,7 +139,7 @@ describe('structuredData', () => {
       pagePath: '/event/will-the-iranian-regime-fall-by-june-30',
       site: {
         ...createDefaultThemeSiteIdentity(),
-        name: 'Cultural Exchange',
+        name: 'Kuest',
         description: 'Prediction markets',
       },
       faqItems: [
@@ -163,7 +163,7 @@ describe('structuredData', () => {
       {
         '@type': 'ListItem',
         'position': 1,
-        'name': 'Cultural Exchange',
+        'name': 'Kuest',
         'item': 'https://kuest.example/',
       },
       {
@@ -209,7 +209,7 @@ describe('structuredData', () => {
       pagePath: '/event/will-the-iranian-regime-fall-by-june-30',
       site: {
         ...createDefaultThemeSiteIdentity(),
-        name: 'Cultural Exchange',
+        name: 'Kuest',
         description: 'Prediction markets',
       },
     })
@@ -223,7 +223,7 @@ describe('structuredData', () => {
       locale: 'en',
       site: {
         ...createDefaultThemeSiteIdentity(),
-        name: 'Cultural Exchange',
+        name: 'Kuest',
         description: 'Prediction markets',
         logoImageUrl: 'javascript:alert(1)',
       },

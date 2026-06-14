@@ -31,7 +31,7 @@ describe('openrouter helpers', () => {
   it('sends runtime site name in completion headers', async () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
-    mocks.loadRuntimeThemeSiteName.mockResolvedValueOnce('Cultural Exchange Runtime')
+    mocks.loadRuntimeThemeSiteName.mockResolvedValueOnce('Kuest Runtime')
 
     fetchMock.mockResolvedValueOnce(
       new Response(
@@ -55,13 +55,13 @@ describe('openrouter helpers', () => {
     const headers = init.headers as Record<string, string>
     expect(headers.Authorization).toBe('Bearer openrouter-key')
     expect(headers['HTTP-Referer']).toBe('https://kuest.test')
-    expect(headers['X-Title']).toBe('Cultural Exchange Runtime')
+    expect(headers['X-Title']).toBe('Kuest Runtime')
   })
 
   it('sends runtime site name in models headers', async () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
-    mocks.loadRuntimeThemeSiteName.mockResolvedValueOnce('Cultural Exchange Runtime')
+    mocks.loadRuntimeThemeSiteName.mockResolvedValueOnce('Kuest Runtime')
 
     fetchMock.mockResolvedValueOnce(
       new Response(
@@ -86,6 +86,6 @@ describe('openrouter helpers', () => {
     const headers = init.headers as Record<string, string>
     expect(headers.Authorization).toBe('Bearer openrouter-key')
     expect(headers['HTTP-Referer']).toBe('https://kuest.test')
-    expect(headers['X-Title']).toBe('Cultural Exchange Runtime')
+    expect(headers['X-Title']).toBe('Kuest Runtime')
   })
 })

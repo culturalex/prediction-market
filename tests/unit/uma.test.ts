@@ -9,11 +9,11 @@ describe('uma helpers', () => {
   }
 
   it('uses explicit project name when provided', () => {
-    const target = resolveUmaProposeTarget(source, 'Cultural Exchange Runtime')
+    const target = resolveUmaProposeTarget(source, 'Kuest Runtime')
     expect(target).not.toBeNull()
 
     const url = new URL(target!.url)
-    expect(url.searchParams.get('project')).toBe('Cultural Exchange Runtime')
+    expect(url.searchParams.get('project')).toBe('Kuest Runtime')
     expect(url.searchParams.get('transactionHash')).toBe('0xabc')
     expect(url.searchParams.get('eventIndex')).toBe('7')
     expect(target?.isMirror).toBe(false)
@@ -34,7 +34,7 @@ describe('uma helpers', () => {
       ...source,
       mirror_uma_request_tx_hash: '0xmirror',
       mirror_uma_request_log_index: 99,
-    }, 'Cultural Exchange Runtime')
+    }, 'Kuest Runtime')
 
     expect(target).not.toBeNull()
     expect(target?.isMirror).toBe(true)

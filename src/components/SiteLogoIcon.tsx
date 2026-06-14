@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import { DEFAULT_SITE_LOGO_PUBLIC_PATH } from '@/lib/site-logo-asset'
 import { cn } from '@/lib/utils'
 
 interface SiteLogoIconProps {
@@ -21,13 +20,11 @@ export default function SiteLogoIcon({
   alt = '',
   size = 24,
 }: SiteLogoIconProps) {
-  const resolvedLogoImageUrl = logoImageUrl || (!logoSvg.trim() ? DEFAULT_SITE_LOGO_PUBLIC_PATH : null)
-
-  if (resolvedLogoImageUrl) {
+  if (logoImageUrl) {
     return (
       <span className={className}>
         <Image
-          src={resolvedLogoImageUrl}
+          src={logoImageUrl}
           alt={alt}
           width={size}
           height={size}
